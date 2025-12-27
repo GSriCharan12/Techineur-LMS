@@ -96,8 +96,8 @@
     const tableBody = document.querySelector("table tbody");
 
     const BASE_URL = window.API_BASE_URL || "http://localhost:5000";
-    const API_URL = `${BASE_URL}/api/admin/courses`;
-    const FACULTY_URL = `${BASE_URL}/api/admin/faculty-list`;
+    const COURSE_API_URL = `${BASE_URL}/api/admin/courses`;
+    const FACULTY_LIST_URL = `${BASE_URL}/api/admin/faculty-list`; // Renamed to avoid potential conflict
     const token = localStorage.getItem("token");
 
     let allCourses = [];
@@ -105,8 +105,8 @@
     // Load Faculty into Select
     async function loadFaculty() {
       try {
-        console.log("Loading faculty from:", FACULTY_URL, "Token:", token ? "Present" : "Missing");
-        const res = await fetch(FACULTY_URL, { headers: { Authorization: `Bearer ${token}` } });
+        console.log("Loading faculty from:", FACULTY_LIST_URL, "Token:", token ? "Present" : "Missing");
+        const res = await fetch(FACULTY_LIST_URL, { headers: { Authorization: `Bearer ${token}` } });
         console.log("Faculty Fetch Status:", res.status);
 
         if (!res.ok) {
@@ -132,7 +132,7 @@
     // Load Courses
     async function loadCourses() {
       try {
-        const res = await fetch(API_URL);
+        const res = await fetch(COURSE_API_URL);
         allCourses = await res.json();
 
         tableBody.innerHTML = "";
@@ -165,7 +165,7 @@
       const section = courseSection.value;
 
       const editId = document.getElementById("courseIndex").value;
-      const url = editId ? `${API_URL}/${editId}` : API_URL;
+      const url = editId ? `${COURSE_API_URL}/${editId}` : COURSE_API_URL;
       const method = editId ? "PUT" : "POST";
 
       console.log("Submitting course:", method, url, { code, title, faculty_id, section });
@@ -214,7 +214,7 @@
       if (!confirm("Delete this course?")) return;
 
       try {
-        const res = await fetch(`${API_URL}/${id}`, {
+        const res = await fetch(`${COURSE_API_URL}/${id}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` }
         });
