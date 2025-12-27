@@ -207,12 +207,17 @@
     window.deleteFaculty = async (id) => {
       if (!confirm("Delete faculty?")) return;
       try {
-        const res = await fetch(`${API_URL}/${id}`, {
+        const res = await fetch(`${FACULTY_API_URL}/${id}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` }
         });
-        if (res.ok) loadFaculties();
-        else alert("Failed to delete");
+
+        if (res.ok) {
+          loadFaculties();
+        } else {
+          const data = await res.json();
+          alert("Failed: " + (data.message || "Unknown Error"));
+        }
       } catch (err) {
         alert("Network error");
       }
