@@ -16,22 +16,43 @@ exports.getDashboardData = (req, res) => {
             avgGrade: "0%"
         };
 
-        const coursesQuery = "SELECT COUNT(*) as count FROM courses WHERE faculty_id = ?";
-        db.query(coursesQuery, [facultyId], (err, results) => {
-            if (err) return res.status(500).json({ message: "Error fetching courses" });
-            stats.activeCourses = results[0].count;
-            stats.totalStudents = results[0].count * 25;
-            stats.assignments = results[0].count * 3;
-            stats.avgGrade = "85%";
+        // 1. Get Active Courses Count
+        const coursesQuery = "SELECT COUNT(*) as count, GROUP_CONCAT(DISTINCT section) as sections FROM courses WHERE faculty_id = ?";
 
-            res.json({
-                facultyInfo,
-                stats,
-                recentActivity: [
-                    { id: 1, action: "Graded Assignment 3", time: "Just now", type: "check" },
-                    { id: 2, action: "Posted new lecture materials", time: "2 hours ago", type: "upload" }
-                ]
-            });
+        db.query(coursesQuery, [facultyId], (err, courseResults) => {
+            if (err) return res.status(500).json({ message: "Error fetching courses" });
+
+            stats.activeCourses = courseResults[0].count;
+            const sections = courseResults[0].sections ? courseResults[0].sections.split(',') : [];
+
+            // 2. Get Actual Student Count for those sections
+            if (sections.length > 0) {
+                // Prepare 'IN' clause safely
+                const placeholders = sections.map(() => '?').join(',');
+                const studentsQuery = `SELECT COUNT(*) as count FROM students WHERE section IN (${placeholders})`;
+
+                db.query(studentsQuery, sections, (err, studentResults) => {
+                    if (!err && studentResults.length > 0) {
+                        stats.totalStudents = studentResults[0].count;
+                    }
+                    sendResponse();
+                });
+            } else {
+                sendResponse();
+            }
+
+            function sendResponse() {
+                // Mock assignment/grade data for now (requires deeper schema to be real)
+                stats.assignments = stats.activeCourses * 3;
+
+                res.json({
+                    facultyInfo,
+                    stats,
+                    recentActivity: [
+                        { id: 1, action: "System Check", time: "Just now", type: "info" }
+                    ]
+                });
+            }
         });
     });
 };
