@@ -7,11 +7,15 @@ exports.loginUser = (req, res) => {
 
   // 1. Check Admin Credentials (from .env)
   try {
+    console.log("LOGIN DEBUG - Auth attempt:", email, "Expected:", process.env.ADMIN_EMAIL);
+
     if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD &&
       email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
 
+      console.log("LOGIN DEBUG - Admin credentials matched!");
+
       if (!process.env.JWT_SECRET) {
-        console.error("JWT_SECRET is missing in environment variables!");
+        console.error("JWT_SECRET is missing!");
         return res.status(500).json({ message: "Server configuration error: Missing JWT_SECRET" });
       }
 
@@ -20,12 +24,12 @@ exports.loginUser = (req, res) => {
         process.env.JWT_SECRET,
         { expiresIn: "1h" }
       );
-      // Return explicit role and name
       return res.json({ token, role: "admin", name: "Admin" });
     }
+    console.log("LOGIN DEBUG - Admin match failed. Checking DB...");
   } catch (err) {
     console.error("Admin Login Error:", err);
-    return res.status(500).json({ message: "Server error during admin login" });
+    // Do not return here, let it fall through to students logic or return error
   }
 
   // 2. Check Database for Student
