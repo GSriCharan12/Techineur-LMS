@@ -163,26 +163,41 @@ document.addEventListener("DOMContentLoaded", () => {
         if (fileUpload.files.length === 0) return;
 
         const actionText = fileUpload.getAttribute("data-action") || "File Upload";
-        const file = fileUpload.files[0]; // Just take first one for sim
+        const file = fileUpload.files[0];
         const title = `${actionText}: ${file.name}`;
 
-        try {
-            await fetch(`${BASE_URL}/api/faculty/upload-material`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({ title, filename: file.name }) // Sending metadata
-            });
-            // Note: The backend ALSO broadcasts 'new-activity' from inside uploadMaterial,
-            // so we don't need to call broadcastActivity() manually here anymore!
-        } catch (e) {
-            console.error(e);
-            alert("Upload failed");
+        // Limit size to avoid DB/Packet issues (e.g. 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            alert("File too large for this demo (Max 2MB).");
+            fileUpload.value = "";
+            return;
         }
 
-        // Reset file input for next time
+        const reader = new FileReader();
+        reader.onload = async function (evt) {
+            const base64Content = evt.target.result;
+
+            try {
+                await fetch(`${BASE_URL}/api/faculty/upload-material`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        title,
+                        filename: file.name,
+                        file_content: base64Content
+                    })
+                });
+                alert("File uploaded successfully!");
+            } catch (e) {
+                console.error(e);
+                alert("Upload failed");
+            }
+        };
+
+        reader.readAsDataURL(file); // Convert to Base64
         fileUpload.value = "";
     });
 
