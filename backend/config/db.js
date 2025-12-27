@@ -9,7 +9,8 @@ const db = mysql.createPool({
   port: process.env.DB_PORT || 3306,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  connectTimeout: 20000 // Give Railway more time to connect
 });
 
 console.log("✅ MySQL Pool created successfully");
