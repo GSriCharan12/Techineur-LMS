@@ -156,7 +156,8 @@ async function loadMyCourses() {
     tbody.innerHTML = "";
 
     if (courses.length === 0) {
-      tbody.innerHTML = "<tr><td colspan='3'>No courses found for your section.</td></tr>";
+      const currentSec = localStorage.getItem("studentSection") || "?";
+      tbody.innerHTML = `<tr><td colspan='3'>No courses found for your section (<strong>${currentSec}</strong>).<br><small>Please ask Admin to add courses for this section.</small></td></tr>`;
       return;
     }
 
