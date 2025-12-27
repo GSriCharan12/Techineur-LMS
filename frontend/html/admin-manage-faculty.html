@@ -110,7 +110,7 @@
     const tableBody = document.querySelector("table tbody");
 
     const BASE_URL = window.API_BASE_URL || "http://localhost:5000";
-    const API_URL = `${BASE_URL}/api/admin/faculty`;
+    const FACULTY_API_URL = `${BASE_URL}/api/admin/faculty`;
     const LIST_URL = `${BASE_URL}/api/admin/faculty-list`;
     const token = localStorage.getItem("token");
 
@@ -154,7 +154,7 @@
 
       if (!editId && !password) { alert("Password required for new faculty"); return; }
 
-      const url = editId ? `${API_URL}/${editId}` : API_URL;
+      const url = editId ? `${FACULTY_API_URL}/${editId}` : FACULTY_API_URL;
       const method = editId ? "PUT" : "POST";
 
       // Build request body - only include password if provided
