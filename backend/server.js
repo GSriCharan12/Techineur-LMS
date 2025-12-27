@@ -47,8 +47,16 @@ app.use("/api/student", studentRoutes);
 app.use("/api/faculty", facultyRoutes);
 
 // Catch-all to serve index.html for any non-API routes
-app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/html/index.html"));
+// Fallback to serve index.html for SPA-like navigation, BUT exclude valid files
+app.get("*", (req, res) => {
+  // If the request accepts html and is not a file (does not contain a dot), serve index.html
+  // Otherwise, let it 404 naturally (or be served by express.static if it exists)
+  if (req.accepts('html') && !req.path.includes('.')) {
+    res.sendFile(path.join(__dirname, "../frontend/html/index.html"));
+  } else {
+    // Since express.static is above, if we got here, the file doesn't exist.
+    res.status(404).send("Not Found");
+  }
 });
 
 const initDB = require("./config/init-db");
