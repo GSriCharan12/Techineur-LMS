@@ -23,6 +23,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // Listen for real-time activity updates
     socket.on("new-activity", (activity) => {
         addActivityItem(activity, true);
+
+        // Visually increment assignment count if action is related
+        if (activity.type === 'upload' || activity.type === 'plus') {
+            const assignElem = document.getElementById("statAssignments");
+            if (assignElem) {
+                let current = parseInt(assignElem.textContent) || 0;
+                assignElem.textContent = current + 1;
+            }
+        }
     });
 
     // Listen for Course changes (e.g. Admin assigns a new course)
