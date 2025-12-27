@@ -99,9 +99,9 @@ exports.getFaculties = (req, res) => {
 
         const section = results[0].section;
 
-        // Show faculty if they belong to student's section OR if their section is 'Open' or 'All'
-        const query = "SELECT id, name FROM faculty WHERE section = ? OR section = 'Open' OR section IS NULL";
-        db.query(query, [section], (err, faculties) => {
+        // Show ALL faculty so students can give feedback to anyone
+        const query = "SELECT id, name FROM faculty";
+        db.query(query, (err, faculties) => {
             if (err) return res.status(500).json({ message: "Database error" });
             res.json(faculties);
         });
