@@ -75,6 +75,7 @@ const initDB = async () => {
         id INT AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
         file_path VARCHAR(255) NOT NULL,
+        file_content LONGTEXT, 
         faculty_id INT,
         section VARCHAR(10),
         uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -100,6 +101,15 @@ const initDB = async () => {
     };
 
     runQuery(0);
+
+    // Schema Migration for existing table
+    setTimeout(() => {
+      const migrationQuery = "ALTER TABLE materials ADD COLUMN file_content LONGTEXT";
+      db.query(migrationQuery, (err) => {
+        if (!err) console.log("✅ Schema migration: Added file_content to materials");
+        // ignore error if column exists
+      });
+    }, 2000); // Run after table creation loop
   });
 };
 
