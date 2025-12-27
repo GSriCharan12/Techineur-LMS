@@ -6,14 +6,26 @@ exports.loginUser = (req, res) => {
   const { email, password } = req.body;
 
   // 1. Check Admin Credentials (from .env)
-  if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
-    const token = jwt.sign(
-      { email, role: "admin" },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-    // Return explicit role and name
-    return res.json({ token, role: "admin", name: "Admin" });
+  try {
+    if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD &&
+      email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
+
+      if (!process.env.JWT_SECRET) {
+        console.error("JWT_SECRET is missing in environment variables!");
+        return res.status(500).json({ message: "Server configuration error: Missing JWT_SECRET" });
+      }
+
+      const token = jwt.sign(
+        { email, role: "admin" },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+      );
+      // Return explicit role and name
+      return res.json({ token, role: "admin", name: "Admin" });
+    }
+  } catch (err) {
+    console.error("Admin Login Error:", err);
+    return res.status(500).json({ message: "Server error during admin login" });
   }
 
   // 2. Check Database for Student
