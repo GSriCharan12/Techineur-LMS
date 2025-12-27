@@ -1,9 +1,9 @@
 const db = require('./db');
 
 const initDB = async () => {
-    return new Promise((resolve, reject) => {
-        // 1. Students
-        const studentsTable = `
+  return new Promise((resolve, reject) => {
+    // 1. Students
+    const studentsTable = `
       CREATE TABLE IF NOT EXISTS students (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
@@ -12,8 +12,8 @@ const initDB = async () => {
         section VARCHAR(10)
       )`;
 
-        // 2. Faculty
-        const facultyTable = `
+    // 2. Faculty
+    const facultyTable = `
       CREATE TABLE IF NOT EXISTS faculty (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
@@ -23,8 +23,8 @@ const initDB = async () => {
         section VARCHAR(10)
       )`;
 
-        // 3. Courses
-        const coursesTable = `
+    // 3. Courses
+    const coursesTable = `
       CREATE TABLE IF NOT EXISTS courses (
         id INT AUTO_INCREMENT PRIMARY KEY,
         course_code VARCHAR(20) NOT NULL UNIQUE,
@@ -34,8 +34,8 @@ const initDB = async () => {
         FOREIGN KEY (faculty_id) REFERENCES faculty(id) ON DELETE SET NULL
       )`;
 
-        // 4. Feedback
-        const feedbackTable = `
+    // 4. Feedback
+    const feedbackTable = `
       CREATE TABLE IF NOT EXISTS feedback (
         id INT AUTO_INCREMENT PRIMARY KEY,
         student_id INT NOT NULL,
@@ -47,8 +47,8 @@ const initDB = async () => {
         FOREIGN KEY (faculty_id) REFERENCES faculty(id) ON DELETE CASCADE
       )`;
 
-        // 5. Attendance
-        const attendanceTable = `
+    // 5. Attendance
+    const attendanceTable = `
       CREATE TABLE IF NOT EXISTS student_attendance (
         id INT AUTO_INCREMENT PRIMARY KEY,
         student_id INT NOT NULL,
@@ -58,8 +58,8 @@ const initDB = async () => {
         FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
       )`;
 
-        // 6. Grades
-        const gradesTable = `
+    // 6. Grades
+    const gradesTable = `
       CREATE TABLE IF NOT EXISTS student_grades (
         id INT AUTO_INCREMENT PRIMARY KEY,
         student_id INT NOT NULL,
@@ -69,26 +69,38 @@ const initDB = async () => {
         FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
       )`;
 
-        const tables = [studentsTable, facultyTable, coursesTable, feedbackTable, attendanceTable, gradesTable];
+    // 7. Materials (Persist Uploads)
+    const materialsTable = `
+      CREATE TABLE IF NOT EXISTS materials (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        file_path VARCHAR(255) NOT NULL,
+        faculty_id INT,
+        section VARCHAR(10),
+        uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (faculty_id) REFERENCES faculty(id) ON DELETE SET NULL
+      )`;
 
-        let count = 0;
-        const runQuery = (index) => {
-            if (index >= tables.length) {
-                console.log("✅ All tables verified/created");
-                return resolve();
-            }
+    const tables = [studentsTable, facultyTable, coursesTable, feedbackTable, attendanceTable, gradesTable, materialsTable];
 
-            db.query(tables[index], (err) => {
-                if (err) {
-                    console.error(`DB INIT ERROR on table ${index}:`, err.message);
-                    // Some tables might depend on others, but CREATE TABLE IF NOT EXISTS with FKs should be fine if ordered correctly
-                }
-                runQuery(index + 1);
-            });
-        };
+    let count = 0;
+    const runQuery = (index) => {
+      if (index >= tables.length) {
+        console.log("✅ All tables verified/created");
+        return resolve();
+      }
 
-        runQuery(0);
-    });
+      db.query(tables[index], (err) => {
+        if (err) {
+          console.error(`DB INIT ERROR on table ${index}:`, err.message);
+          // Some tables might depend on others, but CREATE TABLE IF NOT EXISTS with FKs should be fine if ordered correctly
+        }
+        runQuery(index + 1);
+      });
+    };
+
+    runQuery(0);
+  });
 };
 
 module.exports = initDB;
