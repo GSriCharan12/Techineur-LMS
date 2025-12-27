@@ -38,7 +38,14 @@ exports.addStudent = async (req, res) => {
 exports.deleteStudent = (req, res) => {
   const { id } = req.params;
   db.query("DELETE FROM students WHERE id = ?", [id], err => {
-    if (err) return res.status(500).json(err);
+    if (err) {
+      console.error("Delete Student Error:", err);
+      // Check for Foreign Key Constraint
+      if (err.code === 'ER_ROW_IS_REFERENCED_2' || err.code === 'ER_ROW_IS_REFERENCED') {
+        return res.status(400).json({ message: "Cannot delete student due to related records (grades/attendance/feedback)." });
+      }
+      return res.status(500).json({ message: "DB Error: " + err.sqlMessage });
+    }
 
     const io = req.app.get("io");
     if (io) io.emit("student-changed", { action: "deleted", id });
