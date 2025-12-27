@@ -118,8 +118,8 @@ exports.getMaterials = (req, res) => {
 
         if (!section) return res.json([]); // No section, no materials
 
-        // Get materials for this section
-        const query = "SELECT * FROM materials WHERE section = ? ORDER BY uploaded_at DESC";
+        // Get materials for this section OR general materials
+        const query = "SELECT * FROM materials WHERE section = ? OR section = 'All' OR section = 'Open' ORDER BY uploaded_at DESC";
         db.query(query, [section], (err, materials) => {
             if (err) return res.status(500).json({ message: "DB Error" });
             res.json(materials);

@@ -121,7 +121,7 @@ exports.uploadMaterial = (req, res) => {
     db.query("SELECT section FROM faculty WHERE id = ?", [facultyId], (err, results) => {
         if (err || results.length === 0) return res.status(500).json({ message: "Error finding faculty info" });
 
-        const targetSection = section || results[0].section || 'A';
+        const targetSection = section || results[0].section || 'All';
         const filePath = `/uploads/${filename}`; // Simulation path
 
         db.query(
