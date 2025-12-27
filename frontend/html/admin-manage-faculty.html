@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Faculty - Techineur LMS</title>
+  <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/admin-manage-faculty.css">
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+
+<body>
+
+  <header>
+    <h1>Techineur LMS - Manage Faculty</h1>
+  </header>
+
+  <div class="manage-container">
+    <h2>Faculty Management</h2>
+    <button id="addFacultyBtn" class="add-btn">Add Faculty</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Faculty ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Department</th>
+          <th>Section</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>FAC001</td>
+          <td>Dr. Alan Grant</td>
+          <td>alan.grant@example.com</td>
+          <td>Computer Science</td>
+          <td class="action-buttons">
+            <button class="edit-btn">Edit</button>
+            <button class="delete-btn">Delete</button>
+          </td>
+        </tr>
+        <tr>
+          <td>FAC002</td>
+          <td>Prof. Ellie Sattler</td>
+          <td>ellie.sattler@example.com</td>
+          <td>Information Technology</td>
+          <td class="action-buttons">
+            <button class="edit-btn">Edit</button>
+            <button class="delete-btn">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Faculty Modal -->
+  <div id="facultyModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="modalTitle">Add Faculty</h2>
+      <form id="facultyForm">
+        <input type="hidden" id="facultyIndex" />
+        <div id="facultyIdContainer">
+          <label for="facultyId">Faculty Code (Optional)</label>
+          <input type="text" id="facultyId" />
+        </div>
+
+        <label for="facultyName">Name</label>
+        <input type="text" id="facultyName" required />
+
+        <label for="facultyEmail">Email</label>
+        <input type="email" id="facultyEmail" required />
+
+        <label for="facultyPassword">Password</label>
+        <input type="password" id="facultyPassword" required placeholder="Set login password" />
+
+        <label for="facultyDept">Department</label>
+        <input type="text" id="facultyDept" required />
+
+        <label for="facultySection">Allot Section</label>
+        <select id="facultySection" required
+          style="width: 100%; padding: 10px; margin-bottom: 18px; border-radius: 10px; border: 1px solid #ccc;">
+          <option value="" disabled selected>Select Section</option>
+          <option value="A">Section A</option>
+          <option value="B">Section B</option>
+          <option value="C">Section C</option>
+          <option value="D">Section D</option>
+          <option value="Open">Open (All)</option>
+        </select>
+
+        <button type="submit" class="add-btn">Save</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    /* API LOGIC */
+    const modal = document.getElementById("facultyModal");
+    const form = document.getElementById("facultyForm");
+    const facultyId = document.getElementById("facultyId");
+
+    const facultyName = document.getElementById("facultyName");
+    const facultyEmail = document.getElementById("facultyEmail");
+    const facultyDept = document.getElementById("facultyDept");
+    const modalTitle = document.getElementById("modalTitle");
+    const tableBody = document.querySelector("table tbody");
+
+    const API_URL = "http://localhost:5000/api/admin/faculty";
+    const LIST_URL = "http://localhost:5000/api/admin/faculty-list";
+    const token = localStorage.getItem("token");
+
+    let allFaculty = [];
+
+    async function loadFaculties() {
+      try {
+        const res = await fetch(LIST_URL, { headers: { Authorization: `Bearer ${token}` } });
+        allFaculty = await res.json();
+
+        tableBody.innerHTML = "";
+        allFaculty.forEach(f => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${f.id}</td>
+            <td>${f.name}</td>
+            <td>${f.email}</td>
+            <td>${f.department || "-"}</td>
+            <td style="font-weight: bold; color: #ff6f61;">${f.section || "N/A"}</td>
+            <td class="action-buttons">
+              <button class="edit-btn" onclick="editFaculty('${f.id}')">Edit</button>
+              <button class="delete-btn" onclick="deleteFaculty('${f.id}')">Delete</button>
+            </td>
+          `;
+          tableBody.appendChild(row);
+        });
+      } catch (err) {
+        console.error("Error loading faculty:", err);
+      }
+    }
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const name = facultyName.value.trim();
+      const email = facultyEmail.value.trim();
+      const department = facultyDept.value.trim();
+      const password = document.getElementById("facultyPassword").value.trim();
+      const section = document.getElementById("facultySection").value;
+
+      const editId = document.getElementById("facultyIndex").value;
+
+      if (!editId && !password) { alert("Password required for new faculty"); return; }
+
+      const url = editId ? `${API_URL}/${editId}` : API_URL;
+      const method = editId ? "PUT" : "POST";
+
+      // Build request body - only include password if provided
+      const requestBody = { name, email, department, section };
+      if (password) {
+        requestBody.password = password;
+      }
+
+      console.log("Submitting faculty:", method, url, requestBody);
+
+      try {
+        const res = await fetch(url, {
+          method: method,
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (res.ok) {
+          alert("Faculty saved successfully!");
+          modal.style.display = "none";
+          loadFaculties();
+        } else {
+          const data = await res.json();
+          console.log("Error response:", data);
+          alert("Operation failed: " + (data.message || "Unknown error"));
+        }
+      } catch (err) {
+        console.error("Error submitting:", err);
+        alert("Network error");
+      }
+    };
+
+    window.editFaculty = (id) => {
+      const f = allFaculty.find(item => item.id == id);
+      if (!f) return;
+
+      form.reset();
+      modalTitle.textContent = "Edit Faculty";
+      document.getElementById("facultyIndex").value = f.id;
+      facultyName.value = f.name;
+      facultyEmail.value = f.email;
+      facultyDept.value = f.department || "";
+      document.getElementById("facultySection").value = f.section || "";
+      document.getElementById("facultyPassword").placeholder = "Leave blank to keep current";
+      document.getElementById("facultyPassword").required = false;
+      modal.style.display = "flex";
+    };
+
+    window.deleteFaculty = async (id) => {
+      if (!confirm("Delete faculty?")) return;
+      try {
+        const res = await fetch(`${API_URL}/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) loadFaculties();
+        else alert("Failed to delete");
+      } catch (err) {
+        alert("Network error");
+      }
+    };
+
+    // UI
+    document.getElementById("addFacultyBtn").onclick = () => {
+      form.reset();
+      document.getElementById("facultyIndex").value = "";
+      document.getElementById("facultyPassword").placeholder = "Set login password";
+      document.getElementById("facultyPassword").required = true;
+      modalTitle.textContent = "Add Faculty";
+      modal.style.display = "flex";
+    };
+
+    document.querySelector(".close").onclick = () => modal.style.display = "none";
+    window.onclick = e => { if (e.target == modal) modal.style.display = "none"; };
+
+    loadFaculties();
+
+    // =============== REAL-TIME SOCKET LOGIC ===============
+    const socket = io("http://localhost:5000");
+    socket.on("faculty-changed", (data) => {
+      console.log("Faculty data changed:", data);
+      loadFaculties(); // Reload the table in real-time
+    });
+  </script>
+
+
+  <footer>
+    <p>&copy; 2025 Techineur Solutions. All rights reserved.</p>
+  </footer>
+
+</body>
+
+</html>

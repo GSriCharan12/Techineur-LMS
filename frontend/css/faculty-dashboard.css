@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #E5E7EB;
+    color: #1F2937;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1E3A8A;
+    color: #ffffff;
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #1E3A8A;
+}
+
+.header h1 {
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header-user {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+}
+
+.user-name {
+    font-weight: bold;
+}
+
+.user-role {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.stat-card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 0 10px rgba(30, 58, 138, 0.1);
+    transition: 0.3s ease;
+}
+
+.stat-card:hover {
+    box-shadow: 0 0 20px rgba(30, 58, 138, 0.2);
+}
+
+.stat-icon {
+    font-size: 1.8rem;
+    color: #1E3A8A;
+}
+
+.stat-info h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.2rem;
+}
+
+.stat-info p {
+    font-size: 0.9rem;
+    color: #6B7280;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.dashboard-card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 0 10px rgba(30, 58, 138, 0.05);
+}
+
+.dashboard-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #1E3A8A;
+}
+
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+}
+
+.activity-icon {
+    font-size: 1.2rem;
+    color: #1E3A8A;
+}
+
+.activity-content p {
+    margin: 0;
+}
+
+.activity-content small {
+    color: #9CA3AF;
+    font-size: 0.8rem;
+}
+
+.quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #1E3A8A;
+    color: #ffffff;
+    padding: 0.7rem 1rem;
+    border-radius: 40px;
+    text-decoration: none;
+    border: 2px solid #1E3A8A;
+    transition: background 0.2s ease;
+}
+
+.action-btn:hover {
+    background: #ffffff;
+    color: #1E3A8A;
+}
+
+.action-btn i {
+    font-size: 1rem;
+}
+
+.schedule-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.schedule-time {
+    background: #1E3A8A;
+    color: #ffffff;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    min-width: 60px;
+    text-align: center;
+}
+
+.schedule-info h4 {
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+}
+
+.schedule-info p {
+    font-size: 0.85rem;
+    color: #6B7280;
+}

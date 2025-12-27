@@ -1,0 +1,47 @@
+const API = "http://localhost:5000/api/admin/students";
+
+const token = localStorage.getItem("token");
+const role = localStorage.getItem("role");
+
+if (!token || role !== "admin") {
+  alert("Unauthorized");
+  window.location.href = "admin-login.html";
+}
+
+const tableBody = document.querySelector("tbody");
+
+async function loadStudents() {
+  const res = await fetch(API, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  const students = await res.json();
+  tableBody.innerHTML = "";
+
+  students.forEach(s => {
+    tableBody.innerHTML += `
+      <tr>
+        <td>${s.id}</td>
+        <td>${s.name}</td>
+        <td>${s.email}</td>
+        <td>
+          <button onclick="deleteStudent(${s.id})">Delete</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+async function deleteStudent(id) {
+  await fetch(`${API}/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  loadStudents();
+}
+
+loadStudents();

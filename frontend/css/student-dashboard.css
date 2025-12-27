@@ -1,0 +1,261 @@
+* {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: #25252b;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -260px;
+      width: 260px;
+      height: 100%;
+      background-color: #1f1f25;
+      box-shadow: 0 0 20px #ff2770;
+      transition: left 0.3s ease;
+      z-index: 1000;
+      padding-top: 20px;
+    }
+
+    .sidebar.open {
+      left: 0;
+    }
+
+    .sidebar-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .sidebar-logo {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 2px solid #ff2770;
+      margin-bottom: 10px;
+    }
+
+    .sidebar-header h2 {
+      color: #ff2770;
+      font-size: 18px;
+    }
+
+    .sidebar-nav .nav-item {
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    .sidebar-nav .nav-item a {
+      color: #fff;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: 0.3s;
+    }
+
+    .sidebar-nav .nav-item a:hover {
+      background-color: #ff2770;
+      border-radius: 5px;
+      padding-left: 15px;
+    }
+
+    .submenu {
+      display: none;
+      margin-left: 35px;
+      margin-top: 5px;
+    }
+
+    .nav-item.open .submenu {
+      display: block;
+    }
+
+    .submenu a {
+      display: block;
+      margin: 4px 0;
+      font-size: 14px;
+      color: #ccc;
+      text-decoration: none;
+    }
+
+    .submenu a:hover {
+      color: #fff;
+    }
+
+    .dashboard-content {
+      margin-left: 0;
+      padding: 30px;
+      transition: margin-left 0.3s ease;
+    }
+
+    .dashboard-content.shifted {
+      margin-left: 260px;
+    }
+
+    .hamburger {
+      font-size: 26px;
+      color: #ff2770;
+      cursor: pointer;
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #1f1f25;
+      padding: 15px 30px;
+      border-bottom: 2px solid #ff2770;
+    }
+
+    .dashboard-header h1 {
+      color: #ff2770;
+      font-size: 24px;
+    }
+
+    .header-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-name {
+      font-weight: 600;
+      color: #ff2770;
+    }
+
+    .user-avatar {
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      border: 2px solid #ff2770;
+    }
+
+    .dashboard-welcome h1 {
+      font-size: 32px;
+      margin-bottom: 15px;
+      color: #ff2770;
+    }
+
+    .dashboard-welcome p {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .dashboard-welcome ul {
+      margin-top: 10px;
+      padding-left: 20px;
+    }
+
+    .dashboard-welcome ul li {
+      margin-bottom: 8px;
+      list-style: disc;
+      color: #ddd;
+    }
+
+    #myinfo-section input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      border: none;
+      background: #1f1f25;
+      color: #fff;
+    }
+
+    #myinfo-section button {
+      background: #ff2770;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #group {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      border: 2px solid #ff2770;
+      background-color: #1f1f25;
+      color: #fff;
+      outline: none;
+      appearance: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #1f1f25;
+      color: #ff2770;
+    }
+
+    td {
+      background-color: #2e2e36;
+    }
+
+    button {
+      background-color: #ff2770;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #1f1f25;
+      color: #ff2770;
+    }
+    td {
+      background-color: #2e2e36;
+    }
+
+.dashboard-welcome, #myinfo-section, #choose-section-section, #mycourses-section {
+    display: none;
+  }
+
+.dashboard-welcome {
+  display: block; 
+}
+
+
+    @media (max-width: 768px) {
+      .dashboard-content.shifted {
+        margin-left: 0;
+      }
+
+      .sidebar {
+        width: 220px;
+      }
+
+      .sidebar.open ~ .dashboard-content {
+        margin-left: 220px;
+      }
+    }

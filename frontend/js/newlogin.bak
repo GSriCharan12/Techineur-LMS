@@ -1,0 +1,29 @@
+const container = document.querySelector('.container');
+const LoginLink = document.querySelector('.SignInLink');
+const RegisterLink = document.querySelector('.SignUpLink');
+RegisterLink.addEventListener('click', ()=>{
+    container.classList.add('active');
+})
+LoginLink.addEventListener('click', ()=>{
+    container.classList.remove('active');
+})
+
+const allowedFaculty = [
+  { username: "ravi123", password: "pass123", name: "Ravi Kumar" },
+  { username: "anita456", password: "secure456", name: "Anita Sharma" }
+];
+
+document.getElementById("loginForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const username = document.querySelector('input[type="text"]').value;
+  const password = document.querySelector('input[type="password"]').value;
+
+  const faculty = allowedFaculty.find(f => f.username === username && f.password === password);
+
+  if (faculty) {
+    sessionStorage.setItem("facultyName", faculty.name);
+    window.location.href = "faculty-dashboard.html";
+  } else {
+    alert("Invalid credentials");
+  }
+});

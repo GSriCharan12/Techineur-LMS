@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+
+  <!-- 🔐 ADMIN AUTH CHECK (RUNS FIRST) -->
+  <script>
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if (!token || role !== "admin") {
+      window.location.replace("admin-login.html");
+    }
+
+    // Fetch Stats
+    async function fetchStats() {
+      try {
+        const res = await fetch("http://localhost:5000/api/admin/stats", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        document.getElementById("count-students").innerText = data.students + " Registered Students";
+        document.getElementById("count-faculty").innerText = data.faculty + " Active Faculty";
+        document.getElementById("count-courses").innerText = data.courses + " Courses Available";
+        document.getElementById("count-feedback").innerText = (data.feedback?.count || 0) + " Feedback Entries (Avg: " + (Number(data.feedback?.avgRating) || 0).toFixed(1) + "/5)";
+
+        // Update Chart
+        updateChart(data);
+      } catch (err) {
+        console.error("Stats Error:", err);
+      }
+    }
+
+    window.onload = () => {
+      fetchStats();
+
+      // Real-time connections
+      const socket = io("http://localhost:5000");
+
+      const refresh = () => {
+        console.log("Data changed, refreshing stats...");
+        fetchStats();
+      };
+
+      socket.on("faculty-changed", refresh);
+      socket.on("student-changed", refresh);
+      socket.on("course-changed", refresh);
+      socket.on("new-activity", refresh); // If activities change stats (like feedback)
+    };
+  </script>
+
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="../css/admin-dashboard.css">
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-title">
+      <i class="fas fa-user-shield"></i>
+      <h1>Admin Dashboard</h1>
+    </div>
+
+    <nav>
+      <a href="admin-manage-students.html" class="nav-link">Manage Students</a>
+      <a href="admin-manage-course.html" class="nav-link">Manage Courses</a>
+      <a href="admin-manage-faculty.html" class="nav-link">Manage Faculty</a>
+      <a href="#" class="nav-link" onclick="adminLogout()">Logout</a>
+    </nav>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+    <h2 class="dashboard-title">Welcome, Admin</h2>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Total Users</h3>
+        <p id="count-students">Loading...</p>
+      </div>
+
+      <div class="card">
+        <h3>Faculty Accounts</h3>
+        <p id="count-faculty">Loading...</p>
+      </div>
+
+      <div class="card">
+        <h3>Courses</h3>
+        <p id="count-courses">Loading...</p>
+      </div>
+
+      <div class="card">
+        <h3>Feedback</h3>
+        <p id="count-feedback">Loading...</p>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3 style="color:#0077b6; margin-bottom: 20px;">User Distribution</h3>
+      <canvas id="userChart"></canvas>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    &copy; 2025 Techineur Solutions | Admin Panel
+  </footer>
+
+  <!-- CHART -->
+  <script>
+    function updateChart(data) {
+      const ctx = document.getElementById('userChart').getContext('2d');
+
+      // Destroy old chart if exists (if we reload)
+      if (window.myChart) window.myChart.destroy();
+
+      window.myChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ['Students', 'Faculty', 'Courses', 'Feedback'],
+          datasets: [{
+            data: [data.students, data.faculty, data.courses, data.feedback?.count || 0],
+            backgroundColor: ['#00bcd4', '#ff6f61', '#ffa726', '#8e44ad'],
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+    }
+  </script>
+
+  <!-- LOGOUT -->
+  <script>
+    function adminLogout() {
+      localStorage.clear();
+      window.location.replace("index.html");
+    }
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Students - Techineur LMS</title>
+
+  <!-- Icons & Fonts -->
+  <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+
+  <!-- Student Page Styling -->
+  <link rel="stylesheet" href="../css/admin-manage-students.css">
+</head>
+
+<body>
+  <header>
+    <h1>Techineur LMS - Manage Students</h1>
+  </header>
+
+  <div class="manage-container">
+    <h2>Student Management</h2>
+    <button id="addStudentBtn" class="add-btn">Add Student</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Student ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Section</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Filled by JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ================= MODAL ================= -->
+  <div id="studentModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="modalTitle">Add Student</h2>
+
+      <form id="studentForm">
+        <input type="hidden" id="studentIndex" />
+
+        <label>Student ID</label>
+        <input type="text" id="studentId" required />
+
+        <label>Name</label>
+        <input type="text" id="studentName" required />
+
+        <label>Email</label>
+        <input type="email" id="studentEmail" required />
+
+        <label>Password</label>
+        <input type="password" id="studentPassword" required placeholder="Set login password" />
+
+        <label>Section</label>
+        <select id="studentSection" required
+          style="width: 100%; padding: 10px; margin-bottom: 18px; border-radius: 10px; border: 1px solid #ccc;">
+          <option value="" disabled selected>Select Section</option>
+          <option value="A">Section A</option>
+          <option value="B">Section B</option>
+          <option value="C">Section C</option>
+          <option value="D">Section D</option>
+        </select>
+
+        <button type="submit" class="add-btn">Save</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer>
+    &copy; 2025 Techineur Solutions | Admin Panel
+  </footer>
+
+  <script src="../js/admin-students.js"></script>
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,20 @@
+document.getElementById("registerForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const inputs = document.querySelectorAll("#registerForm input");
+  const username = inputs[0].value.trim();
+  const email = inputs[1].value.trim();
+  const password = inputs[2].value.trim();
+
+  const studentUser = {
+    username,
+    email,
+    password,
+    fullName: username
+  };
+
+  localStorage.setItem("student_user", JSON.stringify(studentUser));
+  alert("Registration successful. Please login.");
+
+  document.querySelector('.container').classList.remove('active');
+});

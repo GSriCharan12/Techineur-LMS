@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login</title>
+
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/admin-login.css" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="curved-shape"></div>
+    <div class="curved-shape2"></div>
+
+    <div class="form-box Login">
+      <h2 class="animation" style="--D:0">Admin Login</h2>
+
+      <form id="adminLoginForm">
+
+        <!-- Email -->
+        <div class="input-box animation" style="--D:1">
+          <input type="email" name="email" required />
+          <label>Email</label>
+          <i class='bx bx-user'></i>
+        </div>
+
+        <!-- Password -->
+        <div class="input-box animation" style="--D:2">
+          <input type="password" name="password" required />
+          <label>Password</label>
+          <i class='bx bx-lock'></i>
+        </div>
+
+        <!-- Button -->
+        <div class="input-box animation" style="--D:3">
+          <button class="btn" type="submit">Login</button>
+        </div>
+
+      </form>
+    </div>
+
+    <div class="info-content Login">
+      <h2 class="animation" style="--D:0">Welcome Admin</h2>
+      <p class="animation" style="--D:1">Access and control the LMS securely</p>
+    </div>
+  </div>
+
+  <script>
+    // ✅ ALWAYS clear old login first
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("name");
+
+    document.getElementById("adminLoginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.querySelector("input[name='email']").value.trim();
+      const password = document.querySelector("input[name='password']").value.trim();
+
+      try {
+        const res = await fetch("http://localhost:5000/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data.message || "Login failed");
+          return;
+        }
+
+        if (data.role !== "admin") {
+          alert("Not an admin account");
+          return;
+        }
+
+        // ✅ Store fresh login
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", data.role);
+        localStorage.setItem("name", data.name);
+
+        // ✅ Redirect ONLY after successful login
+        window.location.href = "admin-dashboard.html";
+
+      } catch (err) {
+        console.error(err);
+        alert("Server error. Try again.");
+      }
+    });
+  </script>
+</body>
+
+</html>
