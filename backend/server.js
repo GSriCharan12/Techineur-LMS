@@ -47,7 +47,7 @@ app.use("/api/student", studentRoutes);
 app.use("/api/faculty", facultyRoutes);
 
 // Catch-all to serve index.html for any non-API routes
-app.get("/*all", (req, res) => {
+app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/html/index.html"));
 });
 
