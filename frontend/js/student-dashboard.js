@@ -209,54 +209,89 @@ async function updateFacultyPreview() {
 
 async function loadAttendance() {
   const tbody = document.getElementById("attendance-table-body");
-  tbody.innerHTML = "";
+  tbody.innerHTML = "<tr><td colspan='4'>Loading...</td></tr>";
 
-  const staticAttendance = [
-    { course_name: "CS101 - Intro to Programming", total: 40, attended: 38 },
-    { course_name: "MAT202 - Discrete Mathematics", total: 32, attended: 28 },
-    { course_name: "PHY301 - Engineering Physics", total: 45, attended: 30 },
-    { course_name: "ENG101 - Academic English", total: 20, attended: 20 }
-  ];
+  try {
+    const res = await fetch(`${API_BASE}/my-attendance`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+    tbody.innerHTML = "";
 
-  staticAttendance.forEach(item => {
-    const percentage = ((item.attended / item.total) * 100).toFixed(1);
-    const row = document.createElement("tr");
+    if (data.length === 0) {
+      tbody.innerHTML = "<tr><td colspan='4'>No attendance records found.</td></tr>";
+      return;
+    }
 
-    // Color coding based on attendance health
-    let color = "#22c55e"; // Green for safe
-    if (percentage < 85) color = "#f59e0b"; // Orange warning
-    if (percentage < 75) color = "#ef4444"; // Red critical
+    // Group by course to calculate percentage? 
+    // The current DB table is simple: student_id, course_name, status, date.
+    // We need to aggregate it manually or expect the backend to do it. 
+    // Let's aggregate here for simplicity.
 
-    row.innerHTML = `
-      <td>${item.course_name}</td>
-      <td>${item.total}</td>
-      <td>${item.attended}</td>
-      <td style="color: ${color}; font-weight: bold;">${percentage}%</td>
-    `;
-    tbody.appendChild(row);
-  });
+    const courseStats = {};
+    data.forEach(record => {
+      if (!courseStats[record.course_name]) {
+        courseStats[record.course_name] = { total: 0, attended: 0 };
+      }
+      courseStats[record.course_name].total++;
+      if (record.status === 'Present') {
+        courseStats[record.course_name].attended++;
+      }
+    });
+
+    Object.keys(courseStats).forEach(courseName => {
+      const item = courseStats[courseName];
+      const percentage = ((item.attended / item.total) * 100).toFixed(1);
+
+      const row = document.createElement("tr");
+      let color = "#22c55e";
+      if (percentage < 85) color = "#f59e0b";
+      if (percentage < 75) color = "#ef4444";
+
+      row.innerHTML = `
+            <td>${courseName}</td>
+            <td>${item.total}</td>
+            <td>${item.attended}</td>
+            <td style="color: ${color}; font-weight: bold;">${percentage}%</td>
+          `;
+      tbody.appendChild(row);
+    });
+
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = "<tr><td colspan='4'>Error loading attendance.</td></tr>";
+  }
 }
 
 async function loadGrades() {
   const tbody = document.getElementById("grades-table-body");
-  tbody.innerHTML = "";
+  tbody.innerHTML = "<tr><td colspan='3'>Loading...</td></tr>";
 
-  const staticGrades = [
-    { semester: "Fall 2024", course_name: "CS101 - Intro to Programming", grade: "A" },
-    { semester: "Fall 2024", course_name: "MAT202 - Discrete Mathematics", grade: "B+" },
-    { semester: "Fall 2024", course_name: "PHY301 - Engineering Physics", grade: "A-" },
-    { semester: "Fall 2024", course_name: "ENG101 - Academic English", grade: "A" }
-  ];
+  try {
+    const res = await fetch(`${API_BASE}/my-grades`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+    tbody.innerHTML = "";
 
-  staticGrades.forEach(item => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${item.semester}</td>
-      <td>${item.course_name}</td>
-      <td style="font-weight: bold; color: #ff2770;">${item.grade}</td>
-    `;
-    tbody.appendChild(row);
-  });
+    if (data.length === 0) {
+      tbody.innerHTML = "<tr><td colspan='3'>No grades published yet.</td></tr>";
+      return;
+    }
+
+    data.forEach(item => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+          <td>${item.semester}</td>
+          <td>${item.course_name}</td>
+          <td style="font-weight: bold; color: #ff2770;">${item.grade}</td>
+        `;
+      tbody.appendChild(row);
+    });
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = "<tr><td colspan='3'>Error loading grades.</td></tr>";
+  }
 }
 
 async function loadFacultyListForFeedback() {
