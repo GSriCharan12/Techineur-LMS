@@ -42,14 +42,14 @@ exports.getDashboardData = (req, res) => {
             }
 
             function sendResponse() {
-                // Mock assignment/grade data for now (requires deeper schema to be real)
-                stats.assignments = stats.activeCourses * 3;
+                // Assignments are 0 because we don't have an assignments table yet
+                stats.assignments = 0;
 
                 res.json({
                     facultyInfo,
                     stats,
                     recentActivity: [
-                        { id: 1, action: "System Check", time: "Just now", type: "info" }
+                        { id: 1, action: "System Ready", time: "Just now", type: "info" }
                     ]
                 });
             }
