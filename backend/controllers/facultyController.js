@@ -57,7 +57,9 @@ exports.getDashboardData = (req, res) => {
     });
 };
 
+// ... existing code ...
 exports.postActivity = (req, res) => {
+    // ... (existing postActivity logic) ...
     const { action, type } = req.body;
     const io = req.app.get("io");
 
@@ -68,9 +70,42 @@ exports.postActivity = (req, res) => {
         type: type || "info"
     };
 
-    // Broadcast to all connected clients
-    console.log("Broadcasting activity:", activity);
     io.emit("new-activity", activity);
+    res.json({ message: "Activity posted", activity });
+};
 
-    res.json({ message: "Activity posted and broadcasted", activity });
+exports.uploadMaterial = (req, res) => {
+    const { title, filename, section } = req.body; // Expecting manually provided section or use faculty's
+    const facultyId = req.user.id;
+
+    // First get faculty section if not provided (assume uploaded for their own section)
+    db.query("SELECT section FROM faculty WHERE id = ?", [facultyId], (err, results) => {
+        if (err || results.length === 0) return res.status(500).json({ message: "Error finding faculty info" });
+
+        const targetSection = section || results[0].section || 'A';
+        const filePath = `/uploads/${filename}`; // Simulation path
+
+        db.query(
+            "INSERT INTO materials (title, file_path, faculty_id, section) VALUES (?, ?, ?, ?)",
+            [title, filePath, facultyId, targetSection],
+            (err, result) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).json({ message: "DB Error" });
+                }
+
+                // Broadcast
+                const io = req.app.get("io");
+                const activityObj = {
+                    id: Date.now(),
+                    action: `New Material: ${title} (files: ${filename})`,
+                    time: "Just now",
+                    type: "upload"
+                };
+                if (io) io.emit("new-activity", activityObj);
+
+                res.json({ message: "Material uploaded", id: result.insertId });
+            }
+        );
+    });
 };
