@@ -6,9 +6,18 @@ exports.setSection = (req, res) => {
 
     if (!section) return res.status(400).json({ message: "Section required" });
 
-    db.query("UPDATE students SET section = ? WHERE id = ?", [section, studentId], (err) => {
+    // Check if already set
+    db.query("SELECT section FROM students WHERE id = ?", [studentId], (err, results) => {
         if (err) return res.status(500).json({ message: "Database error" });
-        res.json({ message: "Section updated successfully" });
+        if (results.length > 0 && results[0].section) {
+            return res.status(403).json({ message: "Registration is final. Contact Admin to change section." });
+        }
+
+        // Proceed to set
+        db.query("UPDATE students SET section = ? WHERE id = ?", [section, studentId], (err) => {
+            if (err) return res.status(500).json({ message: "Database error" });
+            res.json({ message: "Section updated successfully" });
+        });
     });
 };
 
