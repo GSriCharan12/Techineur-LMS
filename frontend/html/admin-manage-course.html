@@ -105,8 +105,18 @@
     // Load Faculty into Select
     async function loadFaculty() {
       try {
+        console.log("Loading faculty from:", FACULTY_URL, "Token:", token ? "Present" : "Missing");
         const res = await fetch(FACULTY_URL, { headers: { Authorization: `Bearer ${token}` } });
+        console.log("Faculty Fetch Status:", res.status);
+
+        if (!res.ok) {
+          console.error("Failed to fetch faculty");
+          return;
+        }
+
         const faculty = await res.json();
+        console.log("Faculty Loaded:", faculty.length);
+
         courseInstructor.innerHTML = '<option value="">Select Faculty</option>';
         faculty.forEach(f => {
           const opt = document.createElement("option");
