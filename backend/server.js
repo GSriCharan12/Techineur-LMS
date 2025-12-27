@@ -51,7 +51,18 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/html/index.html"));
 });
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
+const initDB = require("./config/init-db");
+
+initDB().then(() => {
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, () => {
+    console.log("Server running on port " + PORT);
+  });
+}).catch(err => {
+  console.error("FAILED TO INIT DB:", err);
+  // Still try to listen, but with errors logged
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, () => {
+    console.log("Server running on port " + PORT + " (with DB errors)");
+  });
 });
