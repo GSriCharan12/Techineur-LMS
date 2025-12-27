@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
+const path = require("path");
 const { Server } = require("socket.io");
 require("dotenv").config();
 
@@ -22,6 +23,11 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
+// Serve static files from the 'frontend' folder
+app.use(express.static(path.join(__dirname, "../frontend")));
+// Serve assets from root assets folder
+app.use("/assets", express.static(path.join(__dirname, "../assets")));
+
 // Socket.io connection logic
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
@@ -39,6 +45,11 @@ app.use("/api/admin/students", adminStudentRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/faculty", facultyRoutes);
+
+// Catch-all to serve index.html for any non-API routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/html/index.html"));
+});
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
