@@ -23,12 +23,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Listen for real-time activity updates
     socket.on("new-activity", (activity) => {
         addActivityItem(activity, true);
-        // Optionally update stats too if the activity implies a change
-        if (activity.type === 'check') {
-            // Just an example: increment assignments count if something was graded
-            const assignElem = document.getElementById("statAssignments");
-            assignElem.textContent = parseInt(assignElem.textContent) + 1;
-        }
+    });
+
+    // Listen for Course changes (e.g. Admin assigns a new course)
+    socket.on("course-changed", () => {
+        console.log("Course update detected. Refreshing stats...");
+        fetchDashboardData();
     });
 
     // Fetch initial data
