@@ -8,6 +8,7 @@
 
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="../css/admin-login.css" />
+  <script src="../js/config.js"></script>
 </head>
 
 <body>
@@ -61,7 +62,8 @@
       const password = document.querySelector("input[name='password']").value.trim();
 
       try {
-        const res = await fetch("http://localhost:5000/api/auth/login", {
+        const BASE_URL = window.API_BASE_URL || "http://localhost:5000";
+        const res = await fetch(`${BASE_URL}/api/auth/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
