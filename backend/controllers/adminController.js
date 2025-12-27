@@ -131,7 +131,14 @@ exports.addFaculty = async (req, res) => {
 exports.deleteFaculty = (req, res) => {
   const { id } = req.params;
   db.query("DELETE FROM faculty WHERE id = ?", [id], (err) => {
-    if (err) return res.status(500).json({ message: "DB Error" });
+    if (err) {
+      console.error("Delete Faculty Error:", err);
+      // Check for Foreign Key Constraint
+      if (err.code === 'ER_ROW_IS_REFERENCED_2' || err.code === 'ER_ROW_IS_REFERENCED') {
+        return res.status(400).json({ message: "Cannot delete faculty assigned to a course/section." });
+      }
+      return res.status(500).json({ message: "DB Error: " + err.sqlMessage });
+    }
 
     // Real-time update
     const io = req.app.get("io");
