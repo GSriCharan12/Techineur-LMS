@@ -48,7 +48,7 @@ app.use("/api/faculty", facultyRoutes);
 
 // Catch-all to serve index.html for any non-API routes
 // Fallback to serve index.html for SPA-like navigation, BUT exclude valid files
-app.get("*", (req, res) => {
+app.get(/.*/, (req, res) => {
   // If the request accepts html and is not a file (does not contain a dot), serve index.html
   // Otherwise, let it 404 naturally (or be served by express.static if it exists)
   if (req.accepts('html') && !req.path.includes('.')) {
