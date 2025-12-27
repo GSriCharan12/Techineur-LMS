@@ -95,14 +95,21 @@ async function loadMaterials() {
       materialCard.style.cssText = "background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #22c55e; margin-bottom: 10px;";
 
       // Since we are simulating, we just use the name as download target or an alert
+      const hasContent = m.file_content && m.file_content.startsWith('data:');
+
       materialCard.innerHTML = `
                 <div>
                     <strong style="color: #333;">${m.title}</strong><br>
                     <small style="color: #666;">Uploaded: ${new Date(m.uploaded_at).toLocaleString()}</small>
                 </div>
-                <button onclick="alert('Downloading ${m.file_path}...')" style="background: #22c55e; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
-                    <i class='bx bx-download'></i> Download
-                </button>
+                ${hasContent
+          ? `<a href="${m.file_content}" download="${m.file_path.split('/').pop()}" style="text-decoration:none; background: #22c55e; color: white; border: none; padding: 8px 15px; border-radius: 4px; font-size: 0.8rem; display: inline-flex; align-items: center;">
+                       <i class='bx bx-download' style="margin-right: 5px;"></i> Download
+                     </a>`
+          : `<button onclick="alert('File content missing or unavailable for download.')" style="background: #94a3b8; color: white; border: none; padding: 8px 15px; border-radius: 4px; font-size: 0.8rem;">
+                       Unavailable
+                     </button>`
+        }
             `;
       materialsList.appendChild(materialCard);
     });
