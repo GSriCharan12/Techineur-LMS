@@ -42,16 +42,55 @@ exports.getDashboardData = (req, res) => {
             }
 
             function sendResponse() {
-                // Assignments are 0 because we don't have an assignments table yet
-                stats.assignments = 0;
+                stats.assignments = 0; // Still 0 for now as no assignment table
 
-                res.json({
-                    facultyInfo,
-                    stats,
-                    recentActivity: [
-                        { id: 1, action: "System Ready", time: "Just now", type: "info" }
-                    ]
+                // 3. Calculate Average Grade
+                // Logic: Fetch all grades for students in the faculty's sections (simplified)
+                // Better Logic: Fetch grades for COURSES taught by this faculty.
+
+                // Get course names taught by this faculty
+                db.query("SELECT course_name FROM courses WHERE faculty_id = ?", [facultyId], (err, courseRes) => {
+                    if (err || courseRes.length === 0) {
+                        stats.avgGrade = "N/A";
+                        return finalize();
+                    }
+
+                    const courseNames = courseRes.map(c => c.course_name);
+                    if (courseNames.length === 0) { finalize(); return; }
+
+                    const placeholders = courseNames.map(() => '?').join(',');
+                    db.query(`SELECT grade FROM student_grades WHERE course_name IN (${placeholders})`, courseNames, (err, gradeRes) => {
+                        if (!err && gradeRes.length > 0) {
+                            let total = 0;
+                            let count = 0;
+                            const gradeMap = {
+                                'A': 95, 'A-': 90, 'B+': 87, 'B': 83, 'B-': 80,
+                                'C+': 77, 'C': 73, 'C-': 70, 'D': 65, 'F': 0
+                            };
+
+                            gradeRes.forEach(g => {
+                                const val = gradeMap[g.grade] || 75; // Default C average if unknown
+                                total += val;
+                                count++;
+                            });
+
+                            stats.avgGrade = Math.round(total / count) + "%";
+                        } else {
+                            stats.avgGrade = "No Data";
+                        }
+                        finalize();
+                    });
                 });
+
+                function finalize() {
+                    res.json({
+                        facultyInfo,
+                        stats,
+                        recentActivity: [
+                            { id: 1, action: "System Ready", time: "Just now", type: "info" }
+                        ]
+                    });
+                }
             }
         });
     });
