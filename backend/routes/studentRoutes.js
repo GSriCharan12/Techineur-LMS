@@ -11,5 +11,6 @@ router.get("/my-attendance", verifyToken, getAttendance);
 router.get("/my-grades", verifyToken, getGrades);
 router.post("/submit-feedback", verifyToken, submitFeedback);
 router.get("/faculties", verifyToken, getFaculties);
+router.get("/materials", verifyToken, require("../controllers/studentController").getMaterials);
 
 module.exports = router;

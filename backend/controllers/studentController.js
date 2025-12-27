@@ -107,3 +107,22 @@ exports.getFaculties = (req, res) => {
         });
     });
 };
+// ... existing code ...
+exports.getMaterials = (req, res) => {
+    const studentId = req.user.id;
+
+    // Get student section first
+    db.query("SELECT section FROM students WHERE id = ?", [studentId], (err, results) => {
+        if (err || results.length === 0) return res.status(500).json({ message: "DB Error" });
+        const section = results[0].section;
+
+        if (!section) return res.json([]); // No section, no materials
+
+        // Get materials for this section
+        const query = "SELECT * FROM materials WHERE section = ? ORDER BY uploaded_at DESC";
+        db.query(query, [section], (err, materials) => {
+            if (err) return res.status(500).json({ message: "DB Error" });
+            res.json(materials);
+        });
+    });
+};
