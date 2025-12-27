@@ -25,6 +25,8 @@ app.use(express.json());
 
 // Serve static files from the 'frontend' folder
 app.use(express.static(path.join(__dirname, "../frontend")));
+// Serve HTML files directly from root (so /admin-login.html works)
+app.use(express.static(path.join(__dirname, "../frontend/html")));
 // Serve assets from root assets folder
 app.use("/assets", express.static(path.join(__dirname, "../assets")));
 
