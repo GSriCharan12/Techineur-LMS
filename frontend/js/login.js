@@ -27,17 +27,25 @@ document.getElementById("loginForm").addEventListener("submit", async function (
 
     if (data.role === 'admin') {
       window.location.href = "admin-dashboard.html";
-    } else if (data.role === 'student') {
-      window.location.href = "student-dashboard.html";
-    } else if (data.role === 'faculty') {
-      window.location.href = "faculty-dashboard.html";
-    } else {
-      // Fallback or other roles
-      window.location.href = "index.html";
-    }
+      localStorage.setItem("role", data.role);
+      localStorage.setItem("name", data.name);
 
-  } catch (err) {
-    alert("Server error");
-  }
-});
+      console.log("Login Success. Role:", data.role);
+
+      if (data.role === 'admin') {
+        window.location.href = "admin-dashboard.html";
+      } else if (data.role === 'student') {
+        window.location.href = "student-dashboard.html";
+      } else if (data.role === 'faculty') {
+        window.location.href = "faculty-dashboard.html";
+      } else {
+        // Fallback or other roles
+        console.warn("Unknown role:", data.role);
+        window.location.href = "index.html";
+      }
+
+    } catch (err) {
+      alert("Server error");
+    }
+  });
 
