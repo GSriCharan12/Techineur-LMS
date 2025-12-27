@@ -114,7 +114,7 @@ exports.postActivity = (req, res) => {
 };
 
 exports.uploadMaterial = (req, res) => {
-    const { title, filename, section } = req.body; // Expecting manually provided section or use faculty's
+    const { title, filename, section, file_content } = req.body;
     const facultyId = req.user.id;
 
     // First get faculty section if not provided (assume uploaded for their own section)
@@ -122,11 +122,11 @@ exports.uploadMaterial = (req, res) => {
         if (err || results.length === 0) return res.status(500).json({ message: "Error finding faculty info" });
 
         const targetSection = section || results[0].section || 'All';
-        const filePath = `/uploads/${filename}`; // Simulation path
+        const filePath = `/uploads/${filename}`; // Keep this for display name purposes
 
         db.query(
-            "INSERT INTO materials (title, file_path, faculty_id, section) VALUES (?, ?, ?, ?)",
-            [title, filePath, facultyId, targetSection],
+            "INSERT INTO materials (title, file_path, file_content, faculty_id, section) VALUES (?, ?, ?, ?, ?)",
+            [title, filePath, file_content, facultyId, targetSection],
             (err, result) => {
                 if (err) {
                     console.error(err);
