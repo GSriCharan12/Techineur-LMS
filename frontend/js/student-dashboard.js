@@ -318,12 +318,14 @@ document.addEventListener("DOMContentLoaded", function () {
         body: JSON.stringify({ section })
       });
 
+      const data = await res.json();
+
       if (res.ok) {
         localStorage.setItem("studentSection", section);
         alert(`You have been enrolled in Section ${section}!`);
         showSection('mycourses-section');
       } else {
-        alert("Failed to enroll in section");
+        alert(data.message || "Failed to enroll in section");
       }
     } catch (err) {
       alert("Server error");
