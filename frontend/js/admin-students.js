@@ -1,4 +1,5 @@
-const API = "http://localhost:5000/api/admin/students";
+const BASE_URL = window.API_BASE_URL || "http://localhost:5000";
+const API = `${BASE_URL}/api/admin/students`;
 
 // ================= AUTH CHECK =================
 const token = localStorage.getItem("token");

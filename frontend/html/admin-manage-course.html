@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/admin-manage-course.css">
+  <script src="../js/config.js"></script>
 </head>
 
 <body>
@@ -94,8 +95,9 @@
     const modalTitle = document.getElementById("modalTitle");
     const tableBody = document.querySelector("table tbody");
 
-    const API_URL = "http://localhost:5000/api/admin/courses";
-    const FACULTY_URL = "http://localhost:5000/api/admin/faculty-list";
+    const BASE_URL = window.API_BASE_URL || "http://localhost:5000";
+    const API_URL = `${BASE_URL}/api/admin/courses`;
+    const FACULTY_URL = `${BASE_URL}/api/admin/faculty-list`;
     const token = localStorage.getItem("token");
 
     let allCourses = [];

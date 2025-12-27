@@ -12,8 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("facultyName").textContent = name;
     document.getElementById("facultyRole").textContent = "Faculty Member";
 
+    const BASE_URL = window.API_BASE_URL || "http://localhost:5000";
     // Initialize Socket.io
-    const socket = io("http://localhost:5000");
+    const socket = io(BASE_URL);
 
     socket.on("connect", () => {
         console.log("Connected to real-time server");
@@ -35,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function fetchDashboardData() {
         try {
-            const response = await fetch("http://localhost:5000/api/faculty/dashboard", {
+            const response = await fetch(`${BASE_URL}/api/faculty/dashboard`, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
@@ -164,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function broadcastActivity(action, type) {
         try {
-            await fetch("http://localhost:5000/api/faculty/activity", {
+            await fetch(`${BASE_URL}/api/faculty/activity`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

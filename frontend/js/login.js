@@ -6,7 +6,8 @@ document.getElementById("loginForm").addEventListener("submit", async function (
   const password = inputs[1].value.trim();
 
   try {
-    const response = await fetch("http://localhost:5000/api/auth/login", {
+    const BASE_URL = window.API_BASE_URL || "http://localhost:5000";
+    const response = await fetch(`${BASE_URL}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password })

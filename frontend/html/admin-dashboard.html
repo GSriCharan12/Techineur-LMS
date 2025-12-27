@@ -15,10 +15,13 @@
       window.location.replace("admin-login.html");
     }
 
+    // Use dynamic API URL from config.js if available, else fallback
+    const BASE_URL = window.API_BASE_URL || "http://localhost:5000";
+
     // Fetch Stats
     async function fetchStats() {
       try {
-        const res = await fetch("http://localhost:5000/api/admin/stats", {
+        const res = await fetch(`${BASE_URL}/api/admin/stats`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
@@ -39,7 +42,7 @@
       fetchStats();
 
       // Real-time connections
-      const socket = io("http://localhost:5000");
+      const socket = io(BASE_URL);
 
       const refresh = () => {
         console.log("Data changed, refreshing stats...");
@@ -58,6 +61,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="../css/admin-dashboard.css">
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="../js/config.js"></script>
 </head>
 
 <body>

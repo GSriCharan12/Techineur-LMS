@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/admin-manage-faculty.css">
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="../js/config.js"></script>
 </head>
 
 <body>
@@ -109,8 +109,9 @@
     const modalTitle = document.getElementById("modalTitle");
     const tableBody = document.querySelector("table tbody");
 
-    const API_URL = "http://localhost:5000/api/admin/faculty";
-    const LIST_URL = "http://localhost:5000/api/admin/faculty-list";
+    const BASE_URL = window.API_BASE_URL || "http://localhost:5000";
+    const API_URL = `${BASE_URL}/api/admin/faculty`;
+    const LIST_URL = `${BASE_URL}/api/admin/faculty-list`;
     const token = localStorage.getItem("token");
 
     let allFaculty = [];
@@ -232,7 +233,7 @@
     loadFaculties();
 
     // =============== REAL-TIME SOCKET LOGIC ===============
-    const socket = io("http://localhost:5000");
+    const socket = io(BASE_URL);
     socket.on("faculty-changed", (data) => {
       console.log("Faculty data changed:", data);
       loadFaculties(); // Reload the table in real-time

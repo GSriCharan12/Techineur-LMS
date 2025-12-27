@@ -7,7 +7,8 @@ if (!token || role !== "student") {
   window.location.href = "newlogin.html";
 }
 
-const API_BASE = "http://localhost:5000/api/student";
+const BASE_URL = window.API_BASE_URL || "http://localhost:5000";
+const API_BASE = `${BASE_URL}/api/student`;
 
 // 🚪 Logout function
 function logout() {
@@ -139,7 +140,7 @@ async function updateFacultyPreview() {
   try {
     // We can reuse a public course endpoint or add a specific preview one
     // For simplicity, let's fetch all and filter client-side for the preview
-    const res = await fetch("http://localhost:5000/api/admin/courses");
+    const res = await fetch(`${BASE_URL}/api/admin/courses`);
     const allCourses = await res.json();
     const sectionCourses = allCourses.filter(c => c.section === section);
 
@@ -293,7 +294,7 @@ document.addEventListener("DOMContentLoaded", function () {
   showSection('.dashboard-welcome');
 
   // =============== REAL-TIME ANNOUNCEMENTS ===============
-  const socket = io("http://localhost:5000");
+  const socket = io(BASE_URL);
 
   socket.on("new-activity", (activity) => {
     console.log("Student received activity:", activity);
