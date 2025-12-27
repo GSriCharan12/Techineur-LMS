@@ -70,6 +70,46 @@ function showSection(sectionId) {
     loadGrades();
   } else if (sectionId === 'feedback-section') {
     loadFacultyListForFeedback();
+  } else if (sectionId === 'materials-section') {
+    loadMaterials();
+  }
+}
+
+async function loadMaterials() {
+  const materialsList = document.getElementById("materials-list");
+  materialsList.innerHTML = "<p>Loading materials...</p>";
+
+  try {
+    const res = await fetch(`${API_BASE}/materials`, { headers: { Authorization: `Bearer ${token}` } });
+    const materials = await res.json();
+
+    materialsList.innerHTML = "";
+
+    if (materials.length === 0) {
+      materialsList.innerHTML = '<p id="no-materials" style="color: #666;">No materials uploaded for your section yet.</p>';
+      return;
+    }
+
+    materials.forEach(m => {
+      const materialCard = document.createElement("div");
+      materialCard.style.cssText = "background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #22c55e; margin-bottom: 10px;";
+
+      // Since we are simulating, we just use the name as download target or an alert
+      materialCard.innerHTML = `
+                <div>
+                    <strong style="color: #333;">${m.title}</strong><br>
+                    <small style="color: #666;">Uploaded: ${new Date(m.uploaded_at).toLocaleString()}</small>
+                </div>
+                <button onclick="alert('Downloading ${m.file_path}...')" style="background: #22c55e; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
+                    <i class='bx bx-download'></i> Download
+                </button>
+            `;
+      materialsList.appendChild(materialCard);
+    });
+
+  } catch (e) {
+    console.error(e);
+    materialsList.innerHTML = "<p>Error loading materials.</p>";
   }
 }
 
