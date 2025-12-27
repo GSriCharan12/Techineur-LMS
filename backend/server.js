@@ -46,6 +46,17 @@ app.use("/api/auth", authRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/faculty", facultyRoutes);
 
+// Explicit routes for pages
+app.get("/admin-login.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/html/admin-login.html"));
+});
+app.get("/newlogin.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/html/newlogin.html"));
+});
+app.get("/faculty-login.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/html/faculty-login.html"));
+});
+
 // Catch-all to serve index.html for any non-API routes
 // Fallback to serve index.html for SPA-like navigation, BUT exclude valid files
 app.get(/.*/, (req, res) => {
