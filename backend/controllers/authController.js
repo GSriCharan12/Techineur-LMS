@@ -3,84 +3,70 @@ const db = require("../config/db");
 const bcrypt = require("bcryptjs");
 
 exports.loginUser = (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
 
-  // 1. Check Admin Credentials (from .env)
-  try {
-    console.log("LOGIN DEBUG - Auth attempt:", email, "Expected:", process.env.ADMIN_EMAIL);
+  console.log(`LOGIN ATTEMPT: Email=${email}, Role=${role || 'any'}`);
 
-    if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD &&
-      email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
-
-      console.log("LOGIN DEBUG - Admin credentials matched!");
-
-      if (!process.env.JWT_SECRET) {
-        console.error("JWT_SECRET is missing!");
-        return res.status(500).json({ message: "Server configuration error: Missing JWT_SECRET" });
-      }
-
-      const token = jwt.sign(
-        { email, role: "admin" },
-        process.env.JWT_SECRET,
-        { expiresIn: "1h" }
-      );
-      return res.json({ token, role: "admin", name: "Admin" });
-    }
-    console.log("LOGIN DEBUG - Admin match failed. Checking DB...");
-  } catch (err) {
-    console.error("Admin Login Error:", err);
-    // Do not return here, let it fall through to students logic or return error
+  // 1. Check Admin Credentials (Always first)
+  if (process.env.ADMIN_EMAIL && email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
+    console.log("Logged in as Admin");
+    const token = jwt.sign({ email, role: "admin" }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    return res.json({ token, role: "admin", name: "Admin" });
   }
 
-  // 2. Check Database for Student
-  const query = "SELECT * FROM students WHERE email = ?";
-  db.query(query, [email], async (err, results) => {
-    if (err) {
-      console.error("Login Error:", err);
-      return res.status(500).json({ message: "Server error" });
-    }
-
-    if (results.length > 0) {
-      const student = results[0];
-      try {
-        const isMatch = await bcrypt.compare(password, student.password);
-        if (isMatch) {
-          const token = jwt.sign(
-            { id: student.id, email: student.email, role: "student" },
-            process.env.JWT_SECRET,
-            { expiresIn: "1h" }
-          );
-          return res.json({ token, role: "student", name: student.name });
-        }
-      } catch (bcryptErr) {
-        console.error(bcryptErr);
-      }
-    }
-
-    // 3. Check Database for Faculty (if not student)
-    const facultyQuery = "SELECT * FROM faculty WHERE email = ?";
-    db.query(facultyQuery, [email], async (err, fResults) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ message: "Server error" });
-      }
-
-      if (fResults.length > 0) {
-        const faculty = fResults[0];
+  // Helper function to check student
+  const checkStudent = (next) => {
+    db.query("SELECT * FROM students WHERE email = ?", [email], async (err, results) => {
+      if (err) return res.status(500).json({ message: "Server error" });
+      if (results.length > 0) {
+        const student = results[0];
         try {
-          const isMatch = await bcrypt.compare(password, faculty.password);
-          if (isMatch) {
-            const token = jwt.sign(
-              { id: faculty.id, email: faculty.email, role: "faculty" },
-              process.env.JWT_SECRET,
-              { expiresIn: "1h" }
-            );
+          if (await bcrypt.compare(password, student.password)) {
+            const token = jwt.sign({ id: student.id, email: student.email, role: "student" }, process.env.JWT_SECRET, { expiresIn: "1h" });
+            return res.json({ token, role: "student", name: student.name });
+          }
+        } catch (e) { }
+      }
+      next();
+    });
+  };
+
+  // Helper function to check faculty
+  const checkFaculty = (next) => {
+    db.query("SELECT * FROM faculty WHERE email = ?", [email], async (err, results) => {
+      if (err) return res.status(500).json({ message: "Server error" });
+      if (results.length > 0) {
+        const faculty = results[0];
+        try {
+          if (await bcrypt.compare(password, faculty.password)) {
+            const token = jwt.sign({ id: faculty.id, email: faculty.email, role: "faculty" }, process.env.JWT_SECRET, { expiresIn: "1h" });
             return res.json({ token, role: "faculty", name: faculty.name });
           }
-        } catch (e) { console.error(e); }
+        } catch (e) { }
       }
-
-      return res.status(401).json({ message: "Invalid credentials" });
+      next();
     });
-  });
+  };
+
+  const sendInvalid = () => res.status(401).json({ message: "Invalid credentials" });
+
+  // Logic Flow based on requested Role
+  if (role === 'faculty') {
+    checkFaculty(() => {
+      // If faculty login failed, we technically shouldn't check student, but for safety/fallback we can, OR strictly fail.
+      // Let's strictly fail if they asked for faculty login to avoid confusion.
+      sendInvalid();
+    });
+  } else if (role === 'student') {
+    checkStudent(() => {
+      sendInvalid();
+    });
+  } else {
+    // Legacy / Default: Check Student -> Then Faculty
+    checkStudent(() => {
+      checkFaculty(() => {
+        sendInvalid();
+      });
+    });
+  }
 };
