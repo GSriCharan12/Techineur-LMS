@@ -163,10 +163,24 @@ document.addEventListener("DOMContentLoaded", () => {
         if (fileUpload.files.length === 0) return;
 
         const actionText = fileUpload.getAttribute("data-action") || "File Upload";
-        const fileNames = Array.from(fileUpload.files).map(f => f.name).join(", ");
+        const file = fileUpload.files[0]; // Just take first one for sim
+        const title = `${actionText}: ${file.name}`;
 
-        // Broadcast the specific file upload activity
-        broadcastActivity(`Published: ${actionText} (${fileUpload.files.length} files: ${fileNames.substring(0, 30)}...)`, "upload");
+        try {
+            await fetch(`${BASE_URL}/api/faculty/upload-material`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ title, filename: file.name }) // Sending metadata
+            });
+            // Note: The backend ALSO broadcasts 'new-activity' from inside uploadMaterial,
+            // so we don't need to call broadcastActivity() manually here anymore!
+        } catch (e) {
+            console.error(e);
+            alert("Upload failed");
+        }
 
         // Reset file input for next time
         fileUpload.value = "";
